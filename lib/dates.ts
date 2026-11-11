@@ -1,4 +1,4 @@
-export const MAX_WATCHED_DAYS = 366;
+export const MAX_PERIOD_DAYS = 366;
 export const DEFAULT_PERIOD_DAYS = 30;
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -43,8 +43,8 @@ export function checkPeriod(start: string, end: string): string | null {
     if (startTime > endTime) {
         return "A data inicial não pode ser maior que a data final.";
     }
-    if ((endTime - startTime) / DAY_MS > MAX_WATCHED_DAYS) {
-        return `O período deve ter no máximo ${MAX_WATCHED_DAYS} dias.`;
+    if ((endTime - startTime) / DAY_MS > MAX_PERIOD_DAYS) {
+        return `O período deve ter no máximo ${MAX_PERIOD_DAYS} dias.`;
     }
     return null;
 }   
