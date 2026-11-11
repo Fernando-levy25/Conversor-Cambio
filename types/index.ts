@@ -24,7 +24,7 @@ export interface WatchedPair {
     created_at: string;
 }
 
-export interface WatchedPairWithStats extends WatchedPair {
+export interface WatchedPairWithRate extends WatchedPair {
     current_rate: number | null;
     target_reached: boolean | null;
 }
