@@ -18,12 +18,12 @@ export default function ConvertResult({ result }: ConvertResultProps) {
             <p className="mt-2 text-slate-700">
                 Cotação: 1 {result.from} = {formatRate(result.rate)} {result.to} em {formatDate(result.date)}
             </p>
-            <link
+            <Link
             href={`/rates/${result.from}/${result.to}`}
             className="mt-3 inline-block font-medium text-blue-800 underline underline-offset-4"
             >
                 Ver histórico de {result.from}/{result.to}
-            </link>
+            </Link>
         </section>
     );
 }

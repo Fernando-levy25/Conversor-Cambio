@@ -1,4 +1,4 @@
-import link from "next/link";
+import Link from "next/link";
 
 export default function Header() {
     return (
@@ -7,22 +7,22 @@ export default function Header() {
             aria-label="Navegação principal"
             className="mx-auto flex max-w-4xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3"
             >
-                <link href="/" className="text-lg font-bold text-slate-900">
+                <Link href="/" className="text-lg font-bold text-slate-900">
                     Câmbio
-                </link>
-                <ul className="flex felx-wrap gap-4">
+                </Link>
+                <ul className="flex flex-wrap gap-4">
                     <li>
-                        <link href="/" className="text-blue-700 underline-offset-4 hover:underline" >
-                            conversor
-                        </link>
+                        <Link href="/" className="text-blue-700 underline-offset-4 hover:underline" >
+                            Conversor
+                        </Link>
                     </li>
                     <li>
-                        <link
+                        <Link
                         href="/watched-pairs"
                         className="text-blue-700 underline-offset-4 hover:underline"
                         >
-                            Pares Observados
-                        </link>
+                            Pares monitorados
+                        </Link>
                     </li>
                 </ul>
             </nav>

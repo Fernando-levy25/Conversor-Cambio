@@ -19,7 +19,7 @@ export function defaultPeriod(): { start: string; end: string } {
 
 function checkDate(value: string, label: string): string | null {
     if (!DATE_PATTERN.test(value)) {
-        return `A ${label} deve estar no formato YYYY-MM-DD.`;
+        return `A ${label} deve estar no formato AAAA-MM-DD.`;
     }
     const time = Date.parse(value);
     if (Number.isNaN(time) || new Date(time).toISOString().slice(0, 10) !== value) {
@@ -40,8 +40,8 @@ export function checkPeriod(start: string, end: string): string | null {
     if (endTime > Date.parse(todayUtc())) {
         return "O período não pode incluir datas futuras.";
     }
-    if (startTime > endTime) {
-        return "A data inicial não pode ser maior que a data final.";
+    if (startTime >= endTime) {
+        return "A data inicial deve ser anterior à data final.";
     }
     if ((endTime - startTime) / DAY_MS > MAX_PERIOD_DAYS) {
         return `O período deve ter no máximo ${MAX_PERIOD_DAYS} dias.`;
