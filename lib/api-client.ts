@@ -1,4 +1,3 @@
-import { console } from "inspector";
 import type {
     ConversionResult,
     Currency,
