@@ -2,30 +2,17 @@
 
 Aplicação web para **converter valores entre moedas**, **consultar o histórico de cotações** de um par e **monitorar pares** com uma cotação-alvo. Trabalho da disciplina **Programação Web** (UESPI) — 2ª Avaliação, Problema 09.
 
-> **Status:** em desenvolvimento. As seções marcadas com 🚧 serão concluídas ao longo do projeto.
 
 ## Integrantes
 
 - **Fernando Levy**
 - **Arthur Gabriel**
-## Andamento
-
-| Parte | Situação |
-|---|---|
-| Ambiente (Next.js, TypeScript, SQLite, `.gitignore`) | ✅ pronto |
-| Tipos compartilhados (`types/`) e regras de período (`lib/dates.ts`) | ✅ pronto |
-| Frontend: layout, navegação, componentes base, formatação e validação de formulários | ✅ pronto |
-| Frontend: componentes de seleção, estatísticas, tabela e seletor de período | ✅ pronto |
-| Frontend: cliente da API, formulários e páginas | 🚧 em andamento |
-| Backend: integração com a API de câmbio e endpoints de consulta | 🚧 em andamento |
-| Backend: banco SQLite, registros iniciais e CRUD de pares monitorados | 🚧 em andamento |
-| Revisão final, acessibilidade e README completo | ⏳ pendente |
 
 ## Funcionalidades
 
-- **Conversor de moedas:** converte um valor entre duas moedas com a cotação mais recente. 🚧
-- **Histórico de cotações:** escolhe um período e mostra a tabela de cotações do par, com **mínima, máxima, média e variação percentual**. 🚧
-- **Pares monitorados:** cadastra pares com uma cotação-alvo e uma observação opcional, edita e remove, e indica se a **meta foi atingida**. 🚧
+- **Conversor de moedas:** converte um valor entre duas moedas com a cotação mais recente.
+- **Histórico de cotações:** escolhe um período e mostra a tabela de cotações do par, com **mínima, máxima, média e variação percentual**.
+- **Pares monitorados:** cadastra pares com uma cotação-alvo e uma observação opcional, edita e remove, e indica se a **meta foi atingida**.
 - Interface em português, responsiva e acessível (rótulos nos formulários, foco visível, mensagens de erro anunciadas, indicador de meta que não depende só de cor).
 - Estados de **carregamento, vazio, erro e entrada inválida** em todas as telas.
 
@@ -38,14 +25,14 @@ Aplicação web para **converter valores entre moedas**, **consultar o históric
 - A série histórica contém apenas **dias úteis**.
 - O frontend **nunca** acessa a API externa: só o backend a consulta, e converte as respostas para um formato próprio.
 
-## Endpoints do backend 🚧
+## Endpoints do backend
 
-Implementados como Route Handlers em `app/api/`. Erros sempre no formato `{ "error": "mensagem em português" }`.
+Implementados como Route Handlers em `app/api/`. O frontend os acessa somente com `fetch('/api/...')`. Erros sempre no formato `{ "error": "mensagem em português" }`, e os campos JSON usam `snake_case`.
 
 | Método | Rota | Finalidade | Parâmetros / corpo | Status |
 |---|---|---|---|---|
 | GET | `/api/currencies` | Lista as moedas disponíveis | — | 200, 502, 500 |
-| GET | `/api/convert` | Converte um valor entre duas moedas | `from`, `to`, `amount` (consulta) | 200, 400, 502, 500 |
+| GET | `/api/convert` | Converte um valor entre duas moedas | `from`, `to`, `amount` (consulta) | 200, 400, 404, 502, 500 |
 | GET | `/api/rates/[base]/[quote]` | Histórico de cotações e estatísticas do par | `start`, `end` (consulta, `AAAA-MM-DD`; padrão: últimos 30 dias) | 200, 400, 502, 500 |
 | GET | `/api/watched-pairs` | Lista os pares monitorados com a cotação atual e se a meta foi atingida | — | 200, 502, 500 |
 | POST | `/api/watched-pairs` | Inclui um par monitorado | JSON: `base`, `quote`, `target_rate`, `note` (opcional) | 201, 400, 409, 502, 500 |
@@ -54,9 +41,9 @@ Implementados como Route Handlers em `app/api/`. Erros sempre no formato `{ "err
 
 Significado dos status: `200` consulta ok · `201` criado · `204` removido · `400` parâmetro ausente ou inválido · `404` não encontrado · `409` par já monitorado · `502` falha na API externa · `500` erro interno.
 
-## Banco de dados 🚧
+## Banco de dados
 
-SQLite, acessado com `better-sqlite3`. O arquivo é `data/app.db`, **criado automaticamente** na primeira execução (não é versionado). O modo WAL não é utilizado, e todo SQL é parametrizado. O banco guarda **apenas dados do usuário**; as cotações vêm sempre da API.
+SQLite, acessado com `better-sqlite3`. O arquivo é `data/app.db`, **criado automaticamente** na primeira execução (não é versionado). O modo WAL não é utilizado (journal padrão), e todo SQL é parametrizado. O banco guarda **apenas dados do usuário**; as cotações vêm sempre da API.
 
 ### Tabela `watched_pairs`
 
@@ -71,7 +58,7 @@ SQLite, acessado com `better-sqlite3`. O arquivo é `data/app.db`, **criado auto
 
 A dupla (`base`, `quote`) é única: repetir um par retorna `409`.
 
-### Registros iniciais (previstos)
+### Registros iniciais
 
 Inseridos automaticamente **somente quando o banco é criado**, definidos em um único lugar (`lib/db.ts`):
 
@@ -85,14 +72,15 @@ Inseridos automaticamente **somente quando o banco é criado**, definidos em um 
 | GBP/USD | 1,4 | — |
 | CHF/EUR | 1,05 | Acompanhar o franco suíço. |
 
-Para **restaurar o banco ao estado inicial**, apague `data/app.db` e reinicie a aplicação.
+Para **restaurar o banco ao estado inicial**, pare a aplicação, apague `data/app.db` e inicie novamente.
 
 ## Regras de negócio
 
 - **Meta atingida:** `cotação atual >= cotação-alvo`.
 - **Variação percentual:** `(última − primeira) / primeira × 100`, usando a primeira e a última cotação retornadas (a API só tem dias úteis).
-- **Período do histórico:** data inicial **anterior** à final, sem datas futuras, datas reais no formato `AAAA-MM-DD` e no máximo **366 dias**.
+- **Período do histórico:** data inicial **anterior** à final, sem datas futuras, datas reais no formato `AAAA-MM-DD` e no máximo **366 dias**. Sem datas informadas, usa os últimos 30 dias.
 - **Moedas:** código de 3 letras, existente na API, com origem diferente do destino.
+- **Valor a converter:** número maior que zero.
 - **Observação:** até 500 caracteres. **Cotação-alvo:** número maior que zero.
 - **PATCH:** aceita somente `target_rate` e `note`; qualquer outro campo ou valor inválido retorna `400`.
 
@@ -108,19 +96,20 @@ Para **restaurar o banco ao estado inicial**, apague `data/app.db` e reinicie a 
 
 ```
 app/
-  api/                 Route Handlers (backend)
-  page.tsx             Conversor
+  api/                            Route Handlers (backend)
+  page.tsx                        Conversor
   rates/[base]/[quote]/page.tsx   Histórico do par
   watched-pairs/page.tsx          Pares monitorados
-components/            Componentes reutilizáveis da interface
-lib/                   Lógica de apoio (API externa, validação, banco, cliente da API)
-types/                 Tipos compartilhados
-data/                  Banco SQLite (gerado automaticamente)
+components/                       Componentes reutilizáveis da interface
+lib/                              Lógica de apoio (API externa, validação, banco, cliente da API)
+types/                            Tipos compartilhados
+instrumentation.ts                Cria o banco ao iniciar o servidor
+data/                             Banco SQLite (gerado automaticamente)
 ```
 
 ## Como executar
 
-**Requisitos:** Node.js 22 ou superior (versão usada no desenvolvimento: _confirmar_) e npm.
+**Requisitos:** Node.js 22 ou superior e npm.
 
 ```bash
 git clone https://github.com/Fernando-levy25/Conversor-Cambio.git
@@ -129,4 +118,8 @@ npm install
 npm run dev
 ```
 
-Abra <http://localhost:3000>. O banco e os registros iniciais são criados na primeira execução, sem nenhuma configuração adicional.
+Abra <http://localhost:3000>. O banco e os registros iniciais são criados na primeira execução, sem nenhuma configuração adicional. É necessário acesso à internet, pois as cotações vêm da API Frankfurter.
+
+## Uso de IA
+
+Ferramentas de IA (Claude) foram usadas como apoio para estudo do enunciado, planejamento e revisão, conforme permitido na seção 8 do enunciado. O código foi escrito, revisado e testado pelos integrantes, que dominam todo o projeto.
